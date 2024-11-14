@@ -13,3 +13,18 @@ class Customer(models.Model):
 
     def __str__(self) -> str:
         return f"{self.customer_id} {self.monthly_income}"
+    
+
+class Loan(models.Model):
+    customer = models.ForeignKey(Customer,on_delete=models.CASCADE,related_name='loans')
+    loan_id = models.AutoField(primary_key=True)
+    loan_amount = models.FloatField()
+    tenure = models.IntegerField()
+    interest_rate = models.FloatField()
+    monthly_installment = models.FloatField(null=True,blank=True)
+    emi_paid = models.IntegerField(default=0,blank=True)
+    start_date = models.DateField(auto_now_add=True)
+    end_date = models.DateField()
+
+    def __str__(self) -> str:
+        return f"{self.customer.customer_id} {self.loan_id} {self.loan_amount}"
