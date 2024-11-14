@@ -1,6 +1,5 @@
 from rest_framework import serializers
-from .models import Customer
-
+from customer.models import Loan, Customer
 class CustomerRegisterSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
     class Meta:
@@ -17,3 +16,26 @@ class CustomerRegisterSerializer(serializers.ModelSerializer):
     def get_name(self, obj):
         return f"{obj.first_name} {obj.last_name}"
 
+class CheckLoanEligibilitySerializer(serializers.ModelSerializer):
+    customer_id = serializers.IntegerField(write_only=True)
+
+    class Meta:
+        model = Loan
+        fields = ['loan_id', 'customer_id', 'loan_amount', 'interest_rate', 'tenure']
+
+    def validate(self, attrs):
+        customer_id = attrs.pop('customer_id') 
+        try:
+            customer = Customer.objects.get(customer_id=customer_id)
+        except Customer.DoesNotExist:
+            raise serializers.ValidationError({"customer_id": "Customer not found"})
+        attrs['customer'] = customer
+        return attrs
+
+class CheckEligibilityResponseSerializer(serializers.Serializer):
+    customer_id = serializers.IntegerField()
+    approval = serializers.BooleanField()
+    interest_rate = serializers.FloatField()
+    corrected_interest_rate = serializers.FloatField()
+    tenure = serializers.IntegerField()
+    monthly_installment = serializers.FloatField()
