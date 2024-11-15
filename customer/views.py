@@ -36,7 +36,7 @@ class CheckEligibilityView(APIView):
                 
                 loans = Loan.objects.filter(customer=customer)
 
-                credit_score=calculate_credit_score(customer=customer,loans=loans)
+                credit_score=calculate_credit_score(customer=customer,loans=loans,loan_amount=loan_amount)
                 print(credit_score)
                 approval,corrected_interest_rate,message =determine_approval(customer,loans,credit_score,loan_amount,interest_rate,tenure)
 
@@ -72,7 +72,7 @@ class CreateLoanView(APIView):
                 customer = data['customer']
                 
                 loans = Loan.objects.filter(customer=customer)
-                credit_score = calculate_credit_score(customer=customer, loans=loans)
+                credit_score = calculate_credit_score(customer=customer, loans=loans,loan_amount=loan_amount)
                 approval, corrected_interest_rate, message = determine_approval(
                     customer, loans, credit_score, loan_amount, interest_rate, tenure
                 )

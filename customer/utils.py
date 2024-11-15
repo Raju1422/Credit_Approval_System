@@ -1,36 +1,67 @@
 import datetime
 import math
 
-def calculate_credit_score( customer, loans):
-        try :
-             # for new customer
-            if not loans.exists():  
-                return 100
-            total_loan_amount = 0
-            total_loans_tenure_time = 0
-            total_emis_paid_on_time = 0
-            total_loans = loans.count()
-            past_year = datetime.datetime.now().year - 1
-            recent_loan_activity = 0
-            for loan in loans:
-                total_loan_amount+=loan.loan_amount 
-                total_loans_tenure_time+=loan.tenure
-                total_emis_paid_on_time+=loan.emi_paid
-                if loan.start_date.year ==  past_year:
-                    recent_loan_activity+=1
-            past_loan_score = total_loans * 0.2
-            loan_paid_on_time_score = (total_emis_paid_on_time/total_loans_tenure_time)*0.4
-            recent_loan_activity_score = recent_loan_activity*0.2
-            if total_loan_amount > customer.approved_limit:
-                return 0
-            else :
-                total_loan_amount_score = 0.4
-            credit_score = (past_loan_score + loan_paid_on_time_score+recent_loan_activity_score+total_loan_amount_score) * 100
-            return min(credit_score,100)
-        except Exception as e:
-            print(e)
-            return None
-        
+def calculate_credit_score(customer, loans,loan_amount):
+    try:
+        # For a new customer (no loans), return a perfect score of 100
+        if not loans.exists():
+            return 100
+
+        # Initialize variables
+        total_loan_amount = 0
+        total_loans_tenure_time = 0
+        total_emis_paid_on_time = 0
+        total_loans = loans.count()
+        recent_loan_activity = 0
+        past_year = datetime.datetime.now().year - 1
+        current_year_loans = 0
+
+        # Calculate total loan amount for the customer and check conditions
+        for loan in loans:
+            total_loan_amount += loan.loan_amount
+            total_loans_tenure_time += loan.tenure
+            total_emis_paid_on_time += loan.emi_paid
+
+            # Check for loan activity in the current year (past year)
+            if loan.start_date.year == past_year:
+                recent_loan_activity += 1
+            # Check for loans taken in the current year
+            if loan.start_date.year == datetime.datetime.now().year:
+                current_year_loans += 1
+
+        # 1. Past Loans Paid on Time - 50% threshold
+        if (total_emis_paid_on_time / total_loans_tenure_time) > 0.5:
+            past_loans_score = 20
+        else:
+            past_loans_score = 0
+
+        # 2. Number of Loans Taken in the Past - 50% threshold
+        if total_loans < 5:
+            loans_taken_score = 20
+        else:
+            loans_taken_score = 0
+
+        if recent_loan_activity < 0.5 * total_loans:
+            recent_loan_activity_score = 20
+        else:
+            recent_loan_activity_score = 0
+        if loan_amount > customer.approved_limit :
+            loan_amount_score = 0
+        else :
+            loan_amount_score = 20
+        if total_loan_amount > customer.approved_limit:
+            return 0
+        else :
+            approved_loan_volume_score = 20
+
+        credit_score = (past_loans_score + loans_taken_score + loan_amount_score+
+                        recent_loan_activity_score + approved_loan_volume_score) 
+
+        return min(credit_score, 100)
+
+    except Exception as e:
+        print(e)
+        return None
 def determine_approval(customer,loans,credit_score,loan_amount,interest_rate,tenure):
         # for new customer
         if credit_score == 100:

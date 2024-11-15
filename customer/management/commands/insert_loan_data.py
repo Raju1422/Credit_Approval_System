@@ -14,6 +14,8 @@ class Command(BaseCommand):
         file_path = options['file_path']
         try :
             data = pd.read_excel(file_path)
+            # removing duplicated Loan ids
+            data = data.drop_duplicates(subset='Loan ID', keep='first')
             num_rows = data.shape[0]
             for start in range(0,num_rows,batch_size):
                 end = start + batch_size
