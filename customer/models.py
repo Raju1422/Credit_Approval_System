@@ -24,7 +24,7 @@ class Loan(models.Model):
     monthly_installment = models.FloatField(null=True,blank=True)
     emi_paid = models.IntegerField(default=0,blank=True)
     start_date = models.DateField(auto_now_add=True)
-    end_date = models.DateField()
+    end_date = models.DateField(null=True)
 
     def __str__(self) -> str:
         return f"{self.customer.customer_id} {self.loan_id} {self.loan_amount}"
