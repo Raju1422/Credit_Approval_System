@@ -39,3 +39,13 @@ class CheckEligibilityResponseSerializer(serializers.Serializer):
     corrected_interest_rate = serializers.FloatField()
     tenure = serializers.IntegerField()
     monthly_installment = serializers.FloatField()
+
+class CustomerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Customer
+        fields = ['customer_id', 'first_name', 'last_name', 'phone_number', 'age']
+class LoanSerializer(serializers.ModelSerializer):
+    customer = CustomerSerializer()
+    class Meta:
+        model = Loan
+        fields = ['loan_id', 'customer', 'loan_amount', 'interest_rate', 'monthly_installment', 'tenure']

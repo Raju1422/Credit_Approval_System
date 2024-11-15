@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .serializers import CustomerRegisterSerializer,CheckLoanEligibilitySerializer,CheckEligibilityResponseSerializer
+from .serializers import CustomerRegisterSerializer,CheckLoanEligibilitySerializer,CheckEligibilityResponseSerializer,LoanSerializer
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
@@ -7,6 +7,7 @@ from .models import Loan
 import datetime,math
 from .utils import calculate_credit_score,determine_approval,calculate_monthly_installment
 from django.db import transaction
+from django.http import Http404
 class CustomerRegisterView(APIView):
     def post(self,request):
         try :
@@ -98,5 +99,20 @@ class CreateLoanView(APIView):
                     return Response(response_data, status=status.HTTP_200_OK)
                 
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class LoanDetailsView(APIView):
+    def get_object(self, pk):
+        try:
+            return Loan.objects.get(pk=pk)
+        except Loan.DoesNotExist:
+            raise Http404
+        
+    def get(self, request, pk, format=None):
+        try :
+            snippet = self.get_object(pk)
+            serializer = LoanSerializer(snippet)
+            return Response(serializer.data,status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
