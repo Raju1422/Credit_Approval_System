@@ -9,12 +9,13 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+import environ,os
 from pathlib import Path
+env = environ.Env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -78,10 +79,10 @@ WSGI_APPLICATION = 'CreditApprovalSystem.wsgi.application'
 DATABASES = {
   'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'Alemeno', 
-        'USER': 'Santosh',
-        'PASSWORD': 'sanju@169',
-        'HOST': 'localhost', 
+        'NAME': env('POSTGRES_DB'), 
+        'USER': env('POSTGRES_USER'),
+        'PASSWORD': env('POSTGRES_PASSWORD'),
+        'HOST': 'db', 
         'PORT': '5432',
     }
 }
