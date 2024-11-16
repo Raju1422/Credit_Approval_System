@@ -21,7 +21,6 @@ class Command(BaseCommand):
                 instances = []
                 for _,row in batch_data.iterrows():
                    instance = Customer(
-                        customer_id=row['Customer ID'],
                         first_name=row['First Name'],
                         last_name=row['Last Name'],
                         age=row['Age'],
